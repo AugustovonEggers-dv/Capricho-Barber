@@ -9,7 +9,7 @@ class Reserva(db.Model):
     telefono = db.Column(db.String(20), nullable=False)
     fecha_reserva = db.Column (db.Date, nullable=False)
     hora_reserva = db.Column(db.Time, nullable=False)
-    barbero = db.Column(db.Enum('Nacho','Luciano'), nullable=False)
+    barbero = db.Column(db.String(50), nullable=False)
     servicio = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
