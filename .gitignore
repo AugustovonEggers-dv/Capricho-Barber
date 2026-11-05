@@ -19,7 +19,8 @@ __pycache__/
 *.pyo
 *.pyd
 
-
 .vscode/
 .DS_Store
 Thumbs.db
+
+run-commands.txt

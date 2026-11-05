@@ -15,4 +15,7 @@ def create_app():
     from app.reservas.routes import reservas_bp
     app.register_blueprint(reservas_bp, url_prefix='/')
 
+    from app.admin.routes import admin_bp
+    app.register_blueprint(admin_bp)
+
     return app
