@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response
 from datetime import datetime, date, time, timedelta
 from app.extensions import db
 from app.reservas.models import Reserva
@@ -85,7 +85,54 @@ def index():
 def confirm(id_reserva):
     reserva = Reserva.query.get_or_404(id_reserva)
 
-    return render_template('confirm.html', reserva=reserva)
+    inicio = datetime.combine(reserva.fecha_reserva, reserva.hora_reserva)
+    fin = inicio + timedelta(minutes=45)
+
+    fmt = "%Y%m%dT%H%M%S"
+
+    google_cal_url = (
+        f"https://calendar.google.com/calendar/render?action=TEMPLATE"
+        f"&text=Turno+en+Capricho+Barber"
+        f"&dates={inicio.strftime(fmt)}/{fin.strftime(fmt)}"
+        f"&details=Turno+para+{reserva.servicio.replace(' ', '+')}+con+{reserva.barbero}."
+        f"&location=Capricho+Barber"
+    )
+
+    return render_template('confirm.html', reserva=reserva, google_cal_url=google_cal_url)
+
+@reservas_bp.route('/calendario/apple/<int:id_reserva>')
+def descargar_ics(id_reserva):
+    reserva = Reserva.query.get_or_404(id_reserva)
+
+    inicio = datetime.combine(reserva.fecha_reserva, reserva.hora_reserva)
+    fin = inicio + timedelta(minutes=45)
+
+    fmt = "%Y%m%dT%H%M%S"
+
+    ics_content = f"""BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Capricho Barber//Reservas//ES
+BEGIN:VEVENT
+UID:turno_{reserva.id}@caprichobarber.com
+DTSTAMP:{datetime.now().strftime(fmt)}
+DTSTART:{inicio.strftime(fmt)}
+DTEND:{fin.strftime(fmt)}
+SUMMARY:Turno en Capricho Barber
+DESCRIPTION:Turno para {reserva.servicio} con {reserva.barbero}.
+LOCATION:Capricho Barber
+BEGIN:VALARM
+TRIGGER:-PT4H
+ACTION:DISPLAY
+DESCRIPTION:¡En 4 horas es tu turno en Capricho Barber!
+END:VALARM
+END:VEVENT
+END:VCALENDAR"""
+
+    return Response(
+        ics_content,
+        mimetype='text/calendar',
+        headers={'Content-Disposition': f'attachment; filename=Turno_CaprichoBarber.ics'}
+    )
 
 @reservas_bp.route('/api/disponibilidad/<fecha>')
 def api_disponibilidad(fecha):

@@ -3,51 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva confirmada - Capricho Barbería</title>
+    <title>Reserva Confirmada - Capricho Barber</title>
     <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen m-0 font-sans p-4">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
     
-    <div class="bg-white p-8 rounded-xl shadow-md text-center max-w-sm w-full border-t-4 border-blue-500">
-        <div class="flex justify-center mb-4">
-            <div class="bg-green-100 rounded-full p-3">
-                <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                 </svg>
-            </div>
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
+        <!-- Ícono de Éxito -->
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">¡Reserva Confirmada!</h1>
+        <p class="text-gray-600 mb-6">Te esperamos, {{ reserva.cliente_nombre }}.</p>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-left space-y-2">
+            <p><span class="font-semibold text-gray-700">Día:</span> {{ reserva.fecha_reserva.strftime('%d/%m/%Y') }}</p>
+            <p><span class="font-semibold text-gray-700">Hora:</span> {{ reserva.hora_reserva.strftime('%H:%M') }}</p>
+            <p><span class="font-semibold text-gray-700">Barbero:</span> {{ reserva.barbero }}</p>
+            <p><span class="font-semibold text-gray-700">Servicio:</span> {{ reserva.servicio }}</p>
         </div>
 
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Turno confirmado!</h2>
-        <p class="text-gray-600 mb-6 text-sm">Hola <strong class="text-gray-900">{{ reserva.cliente_nombre }}</strong>, tu reserva ha sido registrada exitosamente en nuestro sistema.</p>
+        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Guardar Recordatorio</h3>
+        
+        <div class="flex flex-col gap-3">
+            <a href="{{ google_cal_url }}" target="_blank" 
+               class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/></svg>
+                Añadir a Google Calendar
+            </a>
 
-    <div class="bg-gray-50 text-left p-5 rounded-lg mb-6 border border-gray-200 shadow-inner">
-        <p class="mb-3 flex justify-between">
-            <strong class="text-gray-700">Barbero: </strong>
-            <span class="text-gray-900 font-medium">{{ reserva.barbero }}</span>
-        </p>
-<p class="mb-3 flex justify-between">
-            <strong class="text-gray-700">Servicio: </strong>
-            <span class="text-gray-900 font-medium">{{ reserva.servicio }}</span>
-        </p>
-        <p class="mb-3 flex justify-between">
-            <strong class="text-gray-700">Fecha: </strong>
-            <span class="text-gray-900 font-medium">{{ reserva.fecha_reserva.strftime('%d/%m/%Y') }}</span>
-        </p>
-        <p class="mb-3 flex justify-between">
-            <strong class="text-gray-700">Hora: </strong>
-            <span class="text-gray-900 font-medium">{{ reserva.hora_reserva.strftime('%H:%M') }}</span>
-        </p>
+            <a href="{{ url_for('reservas.descargar_ics', id_reserva=reserva.id) }}" 
+               class="flex items-center justify-center gap-2 w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Añadir a Apple / iPhone
+            </a>
+        </div>
+        
+        <div class="mt-6">
+            <a href="{{ url_for('reservas.index') }}" class="text-sm text-blue-600 hover:underline">Volver al inicio</a>
+        </div>
     </div>
 
-    <p class="text-sm text-gray-500 mb-6">
-        registrado bajo el número:<br>
-        <strong class="text-gray-500"> {{ reserva.telefono }}</strong>
-    </p>
-
-    <a href="{{ url_for('reservas.index') }}"
-    class="inline-block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-sm">
-    Volver al inicio
-    </a>    
-    </div>
 </body>
 </html>

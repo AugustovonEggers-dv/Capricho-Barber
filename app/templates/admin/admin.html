@@ -14,8 +14,52 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
+        
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Reservas Activas</h2>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg text-sm font-semibold shadow-sm
+                        {% if category == 'error' %} bg-red-100 text-red-700 border-l-4 border-red-500
+                        {% else %} bg-green-100 text-green-700 border-l-4 border-green-500 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
+            <form action="{{ url_for('admin.dashboard') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-end">
+                
+                <div class="w-full sm:w-48">
+                    <label for="filtro_fecha" class="block text-sm font-medium text-gray-700 mb-1">Día de Reserva</label>
+                    <select name="filtro_fecha" id="filtro_fecha" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-800 transition-colors bg-white">
+                        <option value="todas" {% if filtro_fecha == 'todas' or not filtro_fecha %}selected{% endif %}>Todos los días</option>
+                        <option value="hoy" {% if filtro_fecha == 'hoy' %}selected{% endif %}>Solo Hoy</option>
+                    </select>
+                </div>
+                
+                <div class="w-full sm:w-48">
+                    <label for="filtro_barbero" class="block text-sm font-medium text-gray-700 mb-1">Barbero</label>
+                    <select name="filtro_barbero" id="filtro_barbero" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-gray-800 transition-colors bg-white">
+                        <option value="todos" {% if filtro_barbero == 'todos' or not filtro_barbero %}selected{% endif %}>Ambos Barberos</option>
+                        <option value="Nacho" {% if filtro_barbero == 'Nacho' %}selected{% endif %}>Nacho</option>
+                        <option value="Luciano" {% if filtro_barbero == 'Luciano' %}selected{% endif %}>Luciano</option>
+                    </select>
+                </div>
+                
+                <div class="w-full sm:w-auto flex gap-2">
+                    <button type="submit" class="bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-5 rounded-lg transition-colors shadow-sm">
+                        Aplicar Filtros
+                    </button>
+                    <a href="{{ url_for('admin.dashboard') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-5 rounded-lg transition-colors text-center border border-gray-300">
+                        Limpiar
+                    </a>
+                </div>
+            </form>
         </div>
 
         <div class="bg-white rounded-xl shadow overflow-hidden border border-gray-200">
@@ -29,6 +73,8 @@
                             <th class="px-6 py-4 font-semibold">Teléfono</th>
                             <th class="px-6 py-4 font-semibold">Barbero</th>
                             <th class="px-6 py-4 font-semibold">Servicio</th>
+                            <!-- NUEVA COLUMNA -->
+                            <th class="px-6 py-4 font-semibold text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-sm">
@@ -46,10 +92,21 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-gray-600">{{ reserva.servicio }}</td>
+                            
+                            <td class="px-6 py-4 text-center">
+                                <form action="{{ url_for('admin.eliminar_reserva', id_reserva=reserva.id) }}" method="POST" 
+                                      onsubmit="return confirm('¿Estás seguro de que deseas cancelar el turno de {{ reserva.cliente_nombre }}? Esta acción no se puede deshacer.');">
+                                    <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors focus:outline-none" title="Cancelar Turno">
+                                        <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">No hay reservas registradas en el sistema.</td>
+                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">No hay reservas registradas en el sistema.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
