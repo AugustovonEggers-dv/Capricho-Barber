@@ -13,5 +13,11 @@ class Reserva(db.Model):
     servicio = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Barbero(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    nombre = db.Column(db.String(50), unique = True, nullable = False)
+    activo = db.Column(db.Boolean, default = True)
+    foto_url = db.Column(db.String(255), nullable=True, default='https://ui-avatars.com/api/?name=Barbero&background=27272a&color=fff')
+
 def __repr__ (self):
     return f'<Reserva {self.cliente_nombre} - {self.fecha_reserva}>'

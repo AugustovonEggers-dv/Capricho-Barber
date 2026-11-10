@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const radiosBarbero = document.querySelectorAll('input[name="barbero"]');
     const radiosHora = document.querySelectorAll('input[name="hora_reserva"]');
 
-    let turnosOcupados = { "Nacho": [], "Luciano": [] };
+    let turnosOcupados = {};
 
     function aplicarLogicaBloqueo() {
         radiosHora.forEach(r => r.disabled = false);
@@ -12,14 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const barberoSeleccionado = document.querySelector('input[name="barbero"]:checked')?.value;
         const horaSeleccionada = document.querySelector('input[name="hora_reserva"]:checked')?.value;
 
+       const cantidadTotalBarberos = radiosBarbero.length;
+
         radiosHora.forEach(radioHora => {
             const hora = radioHora.value;
-            const ocupadoNacho = turnosOcupados["Nacho"]?.includes(hora);
-            const ocupadoLuciano = turnosOcupados["Luciano"]?.includes(hora);
+            let barberosOcupadosEnEstaHora = 0;
 
-            if (ocupadoNacho && ocupadoLuciano) {
+            for (const nombre in turnosOcupados) {
+                if (turnosOcupados[nombre].includes(hora)) {
+                    barberosOcupadosEnEstaHora++;
+                }
+            }
+
+            if (barberosOcupadosEnEstaHora >= cantidadTotalBarberos && cantidadTotalBarberos > 0) {
                 radioHora.disabled = true;
-                if (radioHora.checked) radioHora.checked = false; 
+                if (radioHora.checked) radioHora.checked = false;
             }
         });
 
@@ -44,9 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 2. COMUNICACIÓN CON EL BACKEND (AJAX) ---
     function buscarDisponibilidad(fecha) {
-        // Hacemos una petición silenciosa a nuestra nueva API
         fetch(`/api/disponibilidad/${fecha}`)
             .then(response => response.json())
             .then(data => {
@@ -63,7 +68,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (day === 0 || day === 1) { 
                 alert('La barbería permanece cerrada los días domingo y lunes.');
                 e.target.value = ''; 
-                turnosOcupados = { "Nacho": [], "Luciano": [] };
+                
+                turnosOcupados = {};
+                radiosBarbero.forEach(r => turnosOcupados[r.value] = []);
+                
                 aplicarLogicaBloqueo();
                 return;
             }

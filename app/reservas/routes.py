@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, Response
 from datetime import datetime, date, time, timedelta
 from app.extensions import db
-from app.reservas.models import Reserva
+from app.reservas.models import Reserva, Barbero
 
 reservas_bp = Blueprint('reservas', __name__)
 
@@ -75,11 +75,13 @@ def index():
             flash('Hubo un error al procesar la reserva. Intente de nuevo.', 'error')
             print(f"Error de BD: {e}") 
             return redirect(url_for('reservas.index'))
-
+        
     hoy = date.today()
     max_date = hoy + timedelta(days=14)
 
-    return render_template('formulario.html')
+    barberos = Barbero.query.filter_by(activo=True).all()
+
+    return render_template('formulario.html', hoy=hoy, max_date=max_date, barberos=barberos)
 
 @reservas_bp.route('/confirm/<int:id_reserva>')
 def confirm(id_reserva):
@@ -143,10 +145,8 @@ def api_disponibilidad(fecha):
 
     reservas_del_dia = Reserva.query.filter_by(fecha_reserva=fecha_obj).all()
 
-    ocupados = {
-        "Nacho": [],
-        "Luciano": []
-    }
+    barberos_activos = Barbero.query.filter_by(activo=True).all()
+    ocupados = {b.nombre: [] for b in barberos_activos}
 
     for r in reservas_del_dia:
         if r.barbero in ocupados:
